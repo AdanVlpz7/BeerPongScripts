@@ -5,29 +5,21 @@ using UnityEngine;
 public class Ball : MonoBehaviour
 {
     #region Member variables.
-	//this float are used to be refer in TestingManager.
-    public static float xAddForceReference;
-	public static float yAddForceReference;
-	public static float zAddForceReference;
 
-	public static float timeIntervalReference;
+	private Vector2 startPos, endPos, direction; // touch start position, touch end position, swipe direction
 
-	public Vector2 startPos, endPos, direction; // touch start position, touch end position, swipe direction
-	float touchTimeStart, touchTimeFinish, timeInterval; // to calculate swipe time to sontrol throw force in Z direction
-
-	[Tooltip("to control throw force in X and Y directions")] [SerializeField] float throwForceInXandY = 1f;
-	[Tooltip("to control throw force in Z direction")]		  [SerializeField] float throwForceInZ = 40f;
-	public float xRandom = 100, yRandom = 100;
+	private float touchTimeStart, touchTimeFinish, timeInterval, timeIntervalReference; // to calculate swipe time to sontrol throw force in Z direction
+	[Tooltip("to control throw force in X and Y directions")] [SerializeField] private float throwForceInXandY = 1f;
+	[Tooltip("to control throw force in Z direction")]		  [SerializeField] private float throwForceInZ = 40f;
 	private Rigidbody rb; //the rigidbody of the ball prefab.
-	private bool spawnGrowned = true;
-	public static bool canShoot = true; 
-    #endregion
 
-    #region Methods.
-    private void Awake()
+	private bool canShoot = true; //Shooting conditional
+
+	#endregion
+
+	#region Methods.
+	private void Awake()
 	{
-		xRandom = 100;
-		yRandom = 100;
 		rb = GetComponent<Rigidbody>();
 		rb.isKinematic = true;
 	}
@@ -37,7 +29,7 @@ public class Ball : MonoBehaviour
         if (UIManager.onV1Game)
         {
 			// if you touch the screen
-			if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began && GameManager.isFirstPlayerTurn && !GameManager.pressingBtn && spawnGrowned)
+			if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began && GameManager.isFirstPlayerTurn && !GameManager.pressingBtn)
 			{
 				// getting touch position and marking time when you touch the screen
 				touchTimeStart = Time.time;
@@ -45,7 +37,7 @@ public class Ball : MonoBehaviour
 			}
 
 			// if you release your finger
-			if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Ended && GameManager.isFirstPlayerTurn && !GameManager.pressingBtn && spawnGrowned)
+			if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Ended && GameManager.isFirstPlayerTurn && !GameManager.pressingBtn)
 			{
 				canShoot = false;
 				// marking time when you release it
@@ -100,9 +92,6 @@ public class Ball : MonoBehaviour
 				rb.isKinematic = false;
 				rb.AddForce(-direction.x * throwForceInXandY, (-direction.y * throwForceInXandY) / 2.3f, throwForceInZ / timeInterval);
 
-				xAddForceReference = -direction.x * throwForceInXandY;
-				yAddForceReference = (-direction.y * throwForceInXandY) / 2.3f;
-				zAddForceReference = throwForceInZ / timeInterval;
 				// Destroy ball in 5 seconds
 				StartCoroutine("DeletePlayerBall");
 			}
@@ -110,26 +99,27 @@ public class Ball : MonoBehaviour
 
 	}
 
-	public IEnumerator ThrowingRandomBall()
-    {
-		Debug.Log("CPU turn");
-		rb.isKinematic = false;
-		yield return new WaitForSeconds(1f);
-		//rb.AddForce(xAddForceReference, yAddForceReference, -zAddForceReference);
-		rb.AddForce(Random.Range(-18,18), Random.Range(25,120), -Random.Range(125,225));
-		StartCoroutine("DeleteCPUBall");
-	}
 	public IEnumerator DeletePlayerBall()
     {
 		canShoot = false;
 		yield return new WaitForSeconds(3f);
 		Destroy(gameObject);
 		GameManager.isFirstPlayerTurn = false;
+		Debug.Log("Ball script is deleting player ball.");
     }
+	public IEnumerator ThrowingRandomBall()
+	{
+		Debug.Log("Ball script is going to throw a random ball");
+		rb.isKinematic = false;
+		yield return new WaitForSeconds(1f);
+		rb.AddForce(Random.Range(-18, 18), Random.Range(25, 120), -Random.Range(125, 225));
+		StartCoroutine("DeleteCPUBall");
+	}
 	public IEnumerator DeleteCPUBall()
     {
         if (UIManager.onV1Game) {
 			yield return new WaitForSeconds(3f);
+			Debug.Log("Ball script is deleting CPU ball of 1 players game.");
 			Destroy(gameObject);
 			GameManager.isFirstPlayerTurn = true;
 			canShoot = true;
@@ -146,11 +136,11 @@ public class Ball : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("spawn"))
         {
-			spawnGrowned = true;
+			canShoot = true;
         }
         else
         {
-			spawnGrowned = false;
+			canShoot = false;
         }
     }
     #endregion

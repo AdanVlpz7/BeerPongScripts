@@ -10,6 +10,7 @@ public class UserManager : MonoBehaviour
     [SerializeField] private Text gameCoinIndicator;
     protected int coins = 0;
     public static int ballIndexUsed = 0;
+
     private void OnEnable()
     {
         ballIndexUsed = AlternatingShopBtn.ballArrayIndex;
@@ -17,10 +18,11 @@ public class UserManager : MonoBehaviour
 
     private void Start()
     {
-        GameManager.playerScoring += UpdateCoinIndicator;
+        GameManager.PlayerHasScored += UpdateCoinIndicator;
     }
     public void UpdateCoinIndicator()
     {
+        Debug.Log("User Manager has update coin count");
         coins += 5;
         menuCoinIndicator.text = coins.ToString();
         gameCoinIndicator.text = coins.ToString();

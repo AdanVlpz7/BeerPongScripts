@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class LiquidDetector : MonoBehaviour
 {
-    [Tooltip("The GameObject parent, in this case, the glass model.")][SerializeField] private GameObject parentObj;
+    [Tooltip("The GameObject parent, in this case, the cup model.")][SerializeField] private GameObject parentObj;
 
     public static bool playerScored = false;
     private void OnTriggerEnter(Collider other)

@@ -6,10 +6,11 @@ using UnityEngine.UI;
 public class AlternatingShopBtn : MonoBehaviour
 {
     public static int ballArrayIndex = 0;
-    // Start is called before the first frame update
-    public Text[] textos = new Text[5];
-    public int arbitrary = ballArrayIndex;
-    public bool changingBall = false;
+
+    public Text[] coindIndicators = new Text[5];
+    private int arbitrary = ballArrayIndex;
+    private bool changingBall = false;
+
     public void ChangeArrayIndex(int num)
     {
         if(arbitrary != num)
@@ -20,12 +21,12 @@ public class AlternatingShopBtn : MonoBehaviour
         }
   
     }
-    public void ChangingTextOfButtonUse(Text x)
+    public void ChangingTextOfButtonUse(Text TextOfButton)
     {
-        x.text = "Using";
+        TextOfButton.text = "Using";
     }
     public void ResettingText()
     {
-        textos[ballArrayIndex].text = "Use";
+        coindIndicators[ballArrayIndex].text = "Use";
     }
 }

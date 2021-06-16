@@ -6,28 +6,28 @@ using UnityEngine.UI;
 public class UIManager : MonoBehaviour
 {
     #region Declaración de variables. 
-    [Tooltip("El objeto vacío que engloba todo lo del juego de 1 jugador")] [SerializeField] private GameObject v1gameParentObject;
+    [Header("Version 1 Player Game.")]
+    [Tooltip("El objeto vacío que engloba todo lo del juego de 1 jugador")] [SerializeField] private GameObject v1GameParent;
     [Tooltip("El objeto vacío que engloba todo lo del juego de 1 jugador")] [SerializeField] private GameObject v1PlayerGameParent;
     [Tooltip("El objeto vacío que engloba todo lo del juego de 1 jugador")] [SerializeField] private GameObject v1PlayerGameOverParent;
 
-    [Tooltip("El objeto vacío que engloba todo el menu principal")]                             [SerializeField] private GameObject menuParentObject;
-    [Tooltip("El objeto vacío que engloba todo la tienda del juego")]                           [SerializeField] private GameObject shopParentObject;
-    
+    [Header("UI parents sections.")]
+    [Tooltip("El objeto vacío que engloba todo el menu principal")]   [SerializeField] private GameObject menuParentObject;
+    [Tooltip("El objeto vacío que engloba todo la tienda del juego")] [SerializeField] private GameObject shopParentObject;
+
+    [Header("Version 2 Players Game.")]
     [Tooltip("El objeto vacío que engloba todo respecto al juego de 2 jugadores")]      [SerializeField] private GameObject v2GameTotalGOParent;
     [Tooltip("El objeto vacío que engloba todo el menu previo a un juego 2 jugadores")] [SerializeField] private GameObject v2GamePreviousMenu;
     [Tooltip("El objeto vacío que engloba todo lo del juego 2 jugadores")]              [SerializeField] private GameObject v2GameParentMenu;
     [Tooltip("El objeto vacío que engloba todo lo del Game Over de 2 jugadores")]       [SerializeField] private GameObject v2GameOverMenu;
 
-    [Tooltip("El InputField donde el usuario escribe el nombre el jugador 1.")] [SerializeField] private InputField player1field;
+    [Header("Text fields and Inputs.")]
+    [Tooltip("El InputField donde el usuario escsribe el nombre el jugador 1.")][SerializeField] private InputField player1field;
     [Tooltip("El InputField donde el usuario escribe el nombre el jugador 2.")] [SerializeField] private InputField player2field;
-
-    [SerializeField] private Text v1GameOverMessage;
-
+    [Tooltip("El texto que se actualiza según ganes o pierdas.")]               [SerializeField] private Text v1GameOverMessage;
 
     public static bool onV1Game = false;
     public static bool onV2Game = false;
-
-    public int coins = 0;
     #endregion
 
     #region 1 player mode respectic UI.
@@ -36,7 +36,7 @@ public class UIManager : MonoBehaviour
     public void GoTo1v1Game()
     {
         onV1Game = true;
-        v1gameParentObject.SetActive(true);
+        v1GameParent.SetActive(true);
         v1PlayerGameParent.SetActive(true);
         v1PlayerGameOverParent.SetActive(false);
         menuParentObject.SetActive(false); 

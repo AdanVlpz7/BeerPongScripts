@@ -23,32 +23,33 @@ public class GameManager : MonoBehaviour
 
     #endregion
 
+    [Header("UI objects.")]
     [Tooltip("El objeto vacío que engloba todo lo del juego de 1 jugador")] [SerializeField] private GameObject v1gameParentObject;
     [Tooltip("El objeto vacío que engloba todo el menu de game over en un juego de 1 jugador")] [SerializeField] private GameObject v1GameOverMenu;
+    [Tooltip("The pause panel.")] [SerializeField] private GameObject pausePanelObject;
+    [Tooltip("The array which have all the glasses of 1player mode.")] [SerializeField] private GameObject[] pauseButtons;
 
+    [Header("Ball needed variables.")]
     [Tooltip("The ball prefab to instantiate.")]           [SerializeField] private GameObject[] ball;
     [Tooltip("The first player ball spawner position.")]   [SerializeField] private GameObject ballPlayerSpawnerPos;
     [Tooltip("The second player ball spawner position.")]  [SerializeField] private GameObject ballRivalSpawnerPos;
-
-    [Tooltip("The pause panel.")]  [SerializeField] private GameObject pausePanelObject;
-    
+   
     [Tooltip("The audiosource.")]  [SerializeField] private AudioSource gameAudio;
 
     [Tooltip("The array which have all the glasses of 1player mode.")] [SerializeField] private GameObject[] glasses;
-    [Tooltip("The array which have all the glasses of 1player mode.")] [SerializeField] private GameObject[] pauseButtons;
     
     public delegate void FinishingGame();
-    public event FinishingGame finishingGame;
+    public event FinishingGame GameHasFinished;
 
     public delegate void PlayerScoring();
-    public static event PlayerScoring playerScoring;
+    public static event PlayerScoring PlayerHasScored;
     #endregion
 
     private void FixedUpdate()
     {
         if (!GameObject.FindGameObjectWithTag("Player") && isFirstPlayerTurn)
         {
-            Debug.Log("Your turn bro");
+            Debug.Log("Game Manager said is your turn bro");
             Instantiate(ball[AlternatingShopBtn.ballArrayIndex], ballPlayerSpawnerPos.transform.position + new Vector3(0,0.1f,0), Quaternion.identity);
         }
         if (!GameObject.FindGameObjectWithTag("Player") && !isFirstPlayerTurn)
@@ -57,15 +58,14 @@ public class GameManager : MonoBehaviour
             rivalBall = Instantiate(ball[AlternatingShopBtn.ballArrayIndex], ballRivalSpawnerPos.transform.position + new Vector3(0, 0.1f, 0), Quaternion.identity);
             rivalBall.GetComponent<Ball>().StartCoroutine("ThrowingRandomBall");
             
-        }
-            
+        }          
         if ((secondPlayerGlasses == 0 || firstPlayerGlasses == 0))
         {
             //this means that 1 player mode has already finished
             GameFinished = true;
-            finishingGame += GoingOutOfGameMode;
-            finishingGame += GameOverSettingMenu;
-            finishingGame();
+            GameHasFinished += GoingOutOfGameMode;
+            GameHasFinished += GameOverSettingMenu;
+            GameHasFinished();
         }
         if (LiquidDetector.playerScored)
         {
@@ -86,10 +86,7 @@ public class GameManager : MonoBehaviour
         //isFirstPlayerTurn = false;
         //secondPlayerGlasses -= 1;
         LiquidDetector.playerScored = false;
-        if (playerScoring != null)
-        {
-            playerScoring();
-        }
+        PlayerHasScored?.Invoke();
     }
 
     private void OnEnable()
@@ -129,9 +126,9 @@ public class GameManager : MonoBehaviour
         pauseButtons[0].SetActive(true);
         pauseButtons[1].SetActive(false);
         pressingBtn = true;
-        StartCoroutine("quittinBtn");
+        StartCoroutine("QuittinBtn");
     }
-    IEnumerator quittinBtn()
+    IEnumerator QuittinBtn()
     {
         yield return new WaitForSeconds(0.3f);
         pressingBtn = false;
