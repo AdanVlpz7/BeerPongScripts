@@ -12,7 +12,7 @@ public class SecondGameManager : MonoBehaviour
     public static bool mode1playerFinished = false;
     public static bool mode2playersFinished = false;
 
-    //the float members who represent have many glasses any player have.
+    //the float members who represent have many glassesSpawnerPositions any player have.
     public static float firstPlayerGlasses = 6;
     public static float secondPlayerGlasses = 6;
     #endregion

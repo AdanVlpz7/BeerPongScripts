@@ -85,7 +85,7 @@ public class UIManager : MonoBehaviour
     //Added to a button in the Game HUD to quit game
     public void QuitGame()
     {
-        Debug.Log("Pressing Quiting Button of 1 Player Mode.");
+        Debug.Log("[UIManager] Pressing Quiting Button of 1 Player Mode.");
         GameObject GameArea = GameObject.FindGameObjectWithTag("GameObjectParent");
         menuParentObject.SetActive(true);
         GameArea.SetActive(false);

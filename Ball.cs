@@ -11,6 +11,7 @@ public class Ball : MonoBehaviour
 	private float touchTimeStart, touchTimeFinish, timeInterval, timeIntervalReference; // to calculate swipe time to sontrol throw force in Z direction
 	[Tooltip("to control throw force in X and Y directions")] [SerializeField] private float throwForceInXandY = 1f;
 	[Tooltip("to control throw force in Z direction")]		  [SerializeField] private float throwForceInZ = 40f;
+	[Tooltip("AudioSource of prefab")] [SerializeField] private AudioSource hitTableAudio;
 	private Rigidbody rb; //the rigidbody of the ball prefab.
 
 	private bool canShoot = true; //Shooting conditional
@@ -22,6 +23,7 @@ public class Ball : MonoBehaviour
 	{
 		rb = GetComponent<Rigidbody>();
 		rb.isKinematic = true;
+		hitTableAudio = this.GetComponent<AudioSource>();
 	}
 	// Update is called once per frame
 	void Update()
@@ -29,7 +31,7 @@ public class Ball : MonoBehaviour
         if (UIManager.onV1Game)
         {
 			// if you touch the screen
-			if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began && GameManager.isFirstPlayerTurn && !GameManager.pressingBtn)
+			if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began && GameManager.isFirstPlayerTurn && !GameManager.pressingBtn && canShoot)
 			{
 				// getting touch position and marking time when you touch the screen
 				touchTimeStart = Time.time;
@@ -37,9 +39,9 @@ public class Ball : MonoBehaviour
 			}
 
 			// if you release your finger
-			if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Ended && GameManager.isFirstPlayerTurn && !GameManager.pressingBtn)
+			if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Ended && GameManager.isFirstPlayerTurn && !GameManager.pressingBtn && canShoot)
 			{
-				canShoot = false;
+				//canShoot = false;
 				// marking time when you release it
 				touchTimeFinish = Time.time;
 
@@ -93,7 +95,7 @@ public class Ball : MonoBehaviour
 				rb.AddForce(-direction.x * throwForceInXandY, (-direction.y * throwForceInXandY) / 2.3f, throwForceInZ / timeInterval);
 
 				// Destroy ball in 5 seconds
-				StartCoroutine("DeletePlayerBall");
+				StartCoroutine(DeletePlayerBall());
 			}
 		}
 
@@ -101,18 +103,18 @@ public class Ball : MonoBehaviour
 
 	public IEnumerator DeletePlayerBall()
     {
-		canShoot = false;
 		yield return new WaitForSeconds(3f);
+		canShoot = false;
 		Destroy(gameObject);
 		GameManager.isFirstPlayerTurn = false;
 		Debug.Log("Ball script is deleting player ball.");
-    }
+	}
 	public IEnumerator ThrowingRandomBall()
 	{
 		Debug.Log("Ball script is going to throw a random ball");
 		rb.isKinematic = false;
-		yield return new WaitForSeconds(1f);
-		rb.AddForce(Random.Range(-18, 18), Random.Range(25, 120), -Random.Range(125, 225));
+		yield return new WaitForSeconds(3f);
+		rb.AddForce(Random.Range(-18, 18), Random.Range(25, 150), -Random.Range(125, 225));
 		StartCoroutine("DeleteCPUBall");
 	}
 	public IEnumerator DeleteCPUBall()
@@ -126,7 +128,7 @@ public class Ball : MonoBehaviour
 		}
         if (UIManager.onV2Game)
         {
-			yield return new WaitForSeconds(3f);
+			yield return new WaitForSeconds(1.5f);
 			Destroy(gameObject);
 			GameManager.isFirstPlayerTurn = true;
 			canShoot = true;
@@ -134,14 +136,13 @@ public class Ball : MonoBehaviour
     }
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("spawn"))
-        {
+        if (collision.gameObject.CompareTag("Spawner"))
 			canShoot = true;
-        }
         else
-        {
 			canShoot = false;
-        }
+		if (collision.gameObject.CompareTag("Table"))
+			hitTableAudio.Play();
+        
     }
     #endregion
 }

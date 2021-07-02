@@ -10,7 +10,8 @@ public class IslaMechanic : MonoBehaviour
     [Tooltip("This list is updated if someone score and the script find an Isla.")][SerializeField] private List<GameObject> islaGlasses = new List<GameObject>();
 
     private int islaCount = 0;
-    public static bool canShootIsla = false;
+    public bool canShootIsla = false;
+    public bool youScoredAnIsla = false;
     public void OnEnablingIslaMechanicScript()
     {
         //method used on Button which start the game.
@@ -193,8 +194,11 @@ public class IslaMechanic : MonoBehaviour
             foreach(var Islas in islaGlasses)
             {
                 //Islas.GetComponent<MeshRenderer>().material.color = Color.black;
-                if(Islas.activeInHierarchy)
-                    Islas.GetComponentInChildren<MeshRenderer>().material.color = Color.cyan;
+                if (Islas.activeInHierarchy)
+                {
+                    Islas.GetComponentInChildren<MeshRenderer>().material.EnableKeyword("_EMISSION");
+                    youScoredAnIsla = true;
+                }
                 else
                 {
                     islaCount = 0;

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -15,11 +16,13 @@ public class GameManager : MonoBehaviour
     //the bools who tells us if any game have gone to game over.
     public static bool GameFinished = false;
 
-    //the float members who represent have many glasses any player have.
+    //the float members who represent have many glassesSpawnerPositions any player have.
     public static float firstPlayerGlasses = 6;
     public static float secondPlayerGlasses = 6;
 
     public static bool pressingBtn = false;
+
+    public bool ableToShootIsla = false;
 
     #endregion
 
@@ -27,7 +30,7 @@ public class GameManager : MonoBehaviour
     [Tooltip("El objeto vacío que engloba todo lo del juego de 1 jugador")] [SerializeField] private GameObject v1gameParentObject;
     [Tooltip("El objeto vacío que engloba todo el menu de game over en un juego de 1 jugador")] [SerializeField] private GameObject v1GameOverMenu;
     [Tooltip("The pause panel.")] [SerializeField] private GameObject pausePanelObject;
-    [Tooltip("The array which have all the glasses of 1player mode.")] [SerializeField] private GameObject[] pauseButtons;
+    [Tooltip("The array which have all the glassesSpawnerPositions of 1player mode.")] [SerializeField] private GameObject[] pauseButtons;
 
     [Header("Ball needed variables.")]
     [Tooltip("The ball prefab to instantiate.")]           [SerializeField] private GameObject[] ball;
@@ -36,17 +39,37 @@ public class GameManager : MonoBehaviour
    
     [Tooltip("The audiosource.")]  [SerializeField] private AudioSource gameAudio;
 
-    [Tooltip("The array which have all the glasses of 1player mode.")] [SerializeField] private GameObject[] glasses;
-    
+    [Tooltip("The array which have all the glassesSpawnerPositions of 1player mode.")] [SerializeField] private GameObject[] glassesSpawnerPositions;
+    [SerializeField] private GameObject playerOneGlassPrefab;
+    [SerializeField] private GameObject playerTwoGlassPrefab;
+
+    [SerializeField] private Text firstPlayerGlassesTxt;
+    [SerializeField] private Text secondPlayerGlassesTxt;
+    [SerializeField] private Text turnTxt;
+
     public delegate void FinishingGame();
     public event FinishingGame GameHasFinished;
 
-    public delegate void PlayerScoring();
+    public delegate void PlayerScoring(int coinAmount);
     public static event PlayerScoring PlayerHasScored;
+    
+
     #endregion
 
     private void FixedUpdate()
     {
+        firstPlayerGlassesTxt.text = firstPlayerGlasses.ToString();
+        secondPlayerGlassesTxt.text = secondPlayerGlasses.ToString();
+        if (isFirstPlayerTurn)
+        {
+            firstPlayerGlassesTxt.GetComponentInParent<Image>().color = Color.red;
+            secondPlayerGlassesTxt.GetComponentInParent<Image>().color = new Color(0.6556604f, 1f, 0.9404028f, 1f);
+        }
+        else
+        {
+            firstPlayerGlassesTxt.GetComponentInParent<Image>().color = new Color(0.9529412f, 0.6509804f, 0.6509804f, 1f);
+            secondPlayerGlassesTxt.GetComponentInParent<Image>().color = Color.blue;
+        }
         if (!GameObject.FindGameObjectWithTag("Player") && isFirstPlayerTurn)
         {
             Debug.Log("Game Manager said is your turn bro");
@@ -69,39 +92,63 @@ public class GameManager : MonoBehaviour
         }
         if (LiquidDetector.playerScored)
         {
-            WhenPlayerScore();
+            if (LiquidDetector.imAnIsla)
+                WhenFirstPlayerScore(25);
+            else
+            {
+                //if(islaMechanic.GetComponent<IslaMechanic>().islaCount == 1)
+                //  islaMechanic.GetComponent<IslaMechanic>().CleaningLists();
+                Debug.Log("[GameManager] You scored a regular shot.");
+                WhenFirstPlayerScore(5);
+            }
+        }
+        if (LiquidDetector.secondPlayerScored)
+        {
+            WhenSecondPlayerScore();
         }
     }
     public void GoingOutOfGameMode(){
         GameObject ballClone = GameObject.FindGameObjectWithTag("Player");
         Destroy(ballClone);
-        for(int i = 0; i < glasses.Length; i++)
-        {
-            glasses[i].SetActive(false);
-        }
     }
     
-    void WhenPlayerScore()
+    void WhenFirstPlayerScore(int coinAmount)
     {
         //isFirstPlayerTurn = false;
         //secondPlayerGlasses -= 1;
         LiquidDetector.playerScored = false;
-        PlayerHasScored?.Invoke();
+        PlayerHasScored?.Invoke(coinAmount);
+    }
+    void WhenSecondPlayerScore()
+    {
+        //isFirstPlayerTurn = false;
+        //secondPlayerGlasses -= 1;
+        LiquidDetector.secondPlayerScored = false;
+        PlayerHasScored?.Invoke(0);
     }
 
-    private void OnEnable()
+    public void OnGameManagerEnable()
     {
         GameObject ballClone = GameObject.FindGameObjectWithTag("Player");
         Destroy(ballClone);
         isFirstPlayerTurn = true;
         secondPlayerGlasses = 6;
         firstPlayerGlasses = 6;
-        for (int i = 0; i < glasses.Length; i++)
+        GameFinished = false;
+    }
+    private void OnEnable()
+    {
+        for (int i = 0; i < 6; i++)
         {
-            glasses[i].SetActive(true);
+            //glassesSpawnerPositions[i].SetActive(true);
+            Instantiate(playerTwoGlassPrefab, glassesSpawnerPositions[i].transform.position, Quaternion.identity);
+        }
+        for (int i = 6; i < 12; i++)
+        {
+            //glassesSpawnerPositions[i].SetActive(true);
+            Instantiate(playerOneGlassPrefab, glassesSpawnerPositions[i].transform.position, Quaternion.identity);
         }
         Resuming();
-        
     }
 
     #region HUD
